@@ -1,21 +1,14 @@
-# capnp-ts
+# capnpc-ts
 
-A strongly typed [Cap'n Proto](https://capnproto.org/) implementation for the browser and Node.js using TypeScript.
+A [Cap'n Proto](https://capnproto.org/) schema compiler for TypeScript.
 
-Here's a quick usage example:
+Basic usage (assuming [capnp](https://capnproto.org/capnp-tool.html) is already installed):
 
-```typescript
-import * as capnp from 'capnp-ts';
-
-import {MyStruct} from './myschema.capnp';
-
-export function loadMessage(buffer: ArrayBuffer): MyStruct {
-
-  const message = capnp.Message.fromArrayBuffer(buffer);
-
-  return message.getRoot(MyStruct);
-
-}
+```shell
+npm install -g capnpc-ts
+capnpc -o ts path/to/myschema.capnp
 ```
 
-An extended readme is available on the project site: [https://github.com/jdiaz5513/capnp-ts](https://github.com/jdiaz5513/capnp-ts).
+This will generate a file at `path/to/myschema.capnp.ts`.
+
+Visit [https://github.com/jdiaz5513/capnp-ts](https://github.com/jdiaz5513/capnp-ts) for an extended README.

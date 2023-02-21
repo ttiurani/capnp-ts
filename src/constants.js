@@ -3,80 +3,160 @@
  * @author jdiaz5513
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MAX_SEGMENT_LENGTH = exports.MAX_DEPTH = exports.VAL32 = exports.POINTER_TYPE_MASK = exports.POINTER_DOUBLE_FAR_MASK = exports.POINTER_COPY_LIMIT = exports.PACK_SPAN_THRESHOLD = exports.NATIVE_LITTLE_ENDIAN = exports.MIN_SINGLE_SEGMENT_GROWTH = exports.MIN_SAFE_INTEGER = exports.MAX_STREAM_SEGMENTS = exports.MAX_SAFE_INTEGER = exports.MAX_UINT32 = exports.MAX_INT32 = exports.MAX_BUFFER_DUMP_BYTES = exports.LIST_SIZE_MASK = exports.GROWTH_FACTOR = exports.DEFAULT_TRAVERSE_LIMIT = exports.DEFAULT_DEPTH_LIMIT = exports.DEFAULT_DECODE_LIMIT = exports.DEFAULT_BUFFER_SIZE = void 0;
-// Perform some bit gymnastics to determine the native endian format.
-const tmpWord = new DataView(new ArrayBuffer(8));
-new Uint16Array(tmpWord.buffer)[0] = 0x0102;
-/** Default size (in bytes) for newly allocated segments. */
-exports.DEFAULT_BUFFER_SIZE = 4096;
-exports.DEFAULT_DECODE_LIMIT = 64 << 20; // 64 MiB
+exports.VOID_TYPE = exports.VALUE = exports.TS_FILE_ID = exports.THIS = exports.STRUCT = exports.STRING_TYPE = exports.STATIC = exports.SOURCE_COMMENT = exports.READONLY = exports.OBJECT_SIZE = exports.NUMBER_TYPE = exports.Primitive = exports.LENGTH = exports.EXPORT = exports.ConcreteListType = exports.CAPNP = exports.BOOLEAN_TYPE = exports.BIGINT = exports.__ = void 0;
+const tslib_1 = require("tslib");
+const s = tslib_1.__importStar(require("capnp-ts/src/std/schema.capnp.js"));
+const debug_1 = tslib_1.__importDefault(require("debug"));
+const typescript_1 = tslib_1.__importStar(require("typescript"));
+const trace = (0, debug_1.default)("capnpc:constants");
+trace("load");
+/** undefined */
+exports.__ = undefined;
+/** BigInt */
+exports.BIGINT = typescript_1.factory.createIdentifier("BigInt");
+/** boolean */
+exports.BOOLEAN_TYPE = typescript_1.factory.createTypeReferenceNode("boolean", exports.__);
+/** capnp */
+exports.CAPNP = typescript_1.factory.createIdentifier("capnp");
+/** A Mapping of various types to their list type constructor. */
+exports.ConcreteListType = {
+    [s.Type.ANY_POINTER]: "capnp.AnyPointerList",
+    [s.Type.BOOL]: "capnp.BoolList",
+    [s.Type.DATA]: "capnp.DataList",
+    [s.Type.ENUM]: "capnp.Uint16List",
+    [s.Type.FLOAT32]: "capnp.Float32List",
+    [s.Type.FLOAT64]: "capnp.Float64List",
+    [s.Type.INT16]: "capnp.Int16List",
+    [s.Type.INT32]: "capnp.Int32List",
+    [s.Type.INT64]: "capnp.Int64List",
+    [s.Type.INT8]: "capnp.Int8List",
+    [s.Type.INTERFACE]: "capnp.InterfaceList",
+    [s.Type.LIST]: "capnp.PointerList",
+    [s.Type.STRUCT]: "capnp.CompositeList",
+    [s.Type.TEXT]: "capnp.TextList",
+    [s.Type.UINT16]: "capnp.Uint16List",
+    [s.Type.UINT32]: "capnp.Uint32List",
+    [s.Type.UINT64]: "capnp.Uint64List",
+    [s.Type.UINT8]: "capnp.Uint8List",
+    [s.Type.VOID]: "capnp.VoidList",
+};
+/** export */
+exports.EXPORT = typescript_1.factory.createToken(typescript_1.default.SyntaxKind.ExportKeyword);
+/** length */
+exports.LENGTH = typescript_1.factory.createIdentifier("length");
+/** Some data used to help generate code for primitive struct fields. */
+exports.Primitive = {
+    [s.Type.BOOL]: {
+        byteLength: 1,
+        getter: "getBit",
+        mask: "getBitMask",
+        setter: "setBit",
+    },
+    [s.Type.ENUM]: {
+        byteLength: 2,
+        getter: "getUint16",
+        mask: "getUint16Mask",
+        setter: "setUint16",
+    },
+    [s.Type.FLOAT32]: {
+        byteLength: 4,
+        getter: "getFloat32",
+        mask: "getFloat32Mask",
+        setter: "setFloat32",
+    },
+    [s.Type.FLOAT64]: {
+        byteLength: 8,
+        getter: "getFloat64",
+        mask: "getFloat64Mask",
+        setter: "setFloat64",
+    },
+    [s.Type.INT16]: {
+        byteLength: 2,
+        getter: "getInt16",
+        mask: "getInt16Mask",
+        setter: "setInt16",
+    },
+    [s.Type.INT32]: {
+        byteLength: 4,
+        getter: "getInt32",
+        mask: "getInt32Mask",
+        setter: "setInt32",
+    },
+    [s.Type.INT64]: {
+        byteLength: 8,
+        getter: "getInt64",
+        mask: "getInt64Mask",
+        setter: "setInt64",
+    },
+    [s.Type.INT8]: {
+        byteLength: 1,
+        getter: "getInt8",
+        mask: "getInt8Mask",
+        setter: "setInt8",
+    },
+    [s.Type.UINT16]: {
+        byteLength: 2,
+        getter: "getUint16",
+        mask: "getUint16Mask",
+        setter: "setUint16",
+    },
+    [s.Type.UINT32]: {
+        byteLength: 4,
+        getter: "getUint32",
+        mask: "getUint32Mask",
+        setter: "setUint32",
+    },
+    [s.Type.UINT64]: {
+        byteLength: 8,
+        getter: "getUint64",
+        mask: "getUint64Mask",
+        setter: "setUint64",
+    },
+    [s.Type.UINT8]: {
+        byteLength: 1,
+        getter: "getUint8",
+        mask: "getUint8Mask",
+        setter: "setUint8",
+    },
+    [s.Type.VOID]: {
+        byteLength: 0,
+        getter: "getVoid",
+        mask: "getVoidMask",
+        setter: "setVoid",
+    },
+};
+/** number */
+exports.NUMBER_TYPE = typescript_1.factory.createTypeReferenceNode("number", exports.__);
+/** __O */
+// This is referenced so frequently it gets a shorthand!
+exports.OBJECT_SIZE = typescript_1.factory.createIdentifier("__O");
+/** readonly */
+exports.READONLY = typescript_1.factory.createToken(typescript_1.default.SyntaxKind.ReadonlyKeyword);
+/** No... comment? */
+exports.SOURCE_COMMENT = `/* tslint:disable */
+
 /**
- * Limit to how deeply nested pointers are allowed to be. The root struct of a message will start at this value, and it
- * is decremented as pointers are dereferenced.
+ * This file has been automatically generated by the [capnpc-ts utility](https://github.com/jdiaz5513/capnp-ts).
  */
-exports.DEFAULT_DEPTH_LIMIT = 64;
+
+`;
+/** static */
+exports.STATIC = typescript_1.factory.createToken(typescript_1.default.SyntaxKind.StaticKeyword);
+/** string */
+exports.STRING_TYPE = typescript_1.factory.createTypeReferenceNode("string", exports.__);
+/** __S */
+// This is referenced so frequently it gets a shorthand!
+exports.STRUCT = typescript_1.default.createIdentifier("__S");
+/** this */
+exports.THIS = typescript_1.factory.createThis();
 /**
- * Limit to the number of **bytes** that can be traversed in a single message. This is necessary to prevent certain
- * classes of DoS attacks where maliciously crafted data can be self-referencing in a way that wouldn't trigger the
- * depth limit.
+ * Used to look up the ts.capnp file by its ID.
  *
- * For this reason, it is advised to cache pointers into variables and not constantly dereference them since the
- * message's traversal limit gets decremented each time.
+ * NOTE: The file ID should never change.
  */
-exports.DEFAULT_TRAVERSE_LIMIT = 64 << 20; // 64 MiB
-/**
- * When allocating array buffers dynamically (while packing or in certain Arena implementations) the previous buffer's
- * size is multiplied by this number to determine the next buffer's size. This is chosen to keep both time spent
- * reallocating and wasted memory to a minimum.
- *
- * Smaller numbers would save memory at the expense of CPU time.
- */
-exports.GROWTH_FACTOR = 1.5;
-/** A bitmask applied to obtain the size of a list pointer. */
-exports.LIST_SIZE_MASK = 0x00000007;
-/** Maximum number of bytes to dump at once when dumping array buffers to string. */
-exports.MAX_BUFFER_DUMP_BYTES = 8192;
-/** The maximum value for a 32-bit integer. */
-exports.MAX_INT32 = 0x7fffffff;
-/** The maximum value for a 32-bit unsigned integer. */
-exports.MAX_UINT32 = 0xffffffff;
-/** The largest integer that can be precisely represented in JavaScript. */
-exports.MAX_SAFE_INTEGER = 9007199254740991;
-/** Maximum limit on the number of segments in a message stream. */
-exports.MAX_STREAM_SEGMENTS = 512;
-/** The smallest integer that can be precisely represented in JavaScript. */
-exports.MIN_SAFE_INTEGER = -9007199254740991;
-/** Minimum growth increment for a SingleSegmentArena. */
-exports.MIN_SINGLE_SEGMENT_GROWTH = 4096;
-/**
- * This will be `true` if the machine running this code stores numbers natively in little-endian format. This is useful
- * for some numeric type conversions when the endianness does not affect the output. Using the native endianness for
- * these operations is _slightly_ faster.
- */
-exports.NATIVE_LITTLE_ENDIAN = tmpWord.getUint8(0) === 0x02;
-/**
- * When packing a message, this is the number of zero bytes required after a SPAN (0xff) tag is written to the packed
- * message before the span is terminated.
- *
- * This little detail is left up to the implementation because it can be tuned for performance. Setting this to a higher
- * value may help with messages that contain a ton of text/data.
- *
- * It is imperative to never set this below 1 or else BAD THINGS. You have been warned.
- */
-exports.PACK_SPAN_THRESHOLD = 2;
-/**
- * How far to travel into a nested pointer structure during a deep copy; when this limit is exhausted the copy
- * operation will throw an error.
- */
-exports.POINTER_COPY_LIMIT = 32;
-/** A bitmask for looking up the double-far flag on a far pointer. */
-exports.POINTER_DOUBLE_FAR_MASK = 0x00000004;
-/** A bitmask for looking up the pointer type. */
-exports.POINTER_TYPE_MASK = 0x00000003;
-/** Used for some 64-bit conversions, equal to Math.pow(2, 32). */
-exports.VAL32 = 0x100000000;
-/** The maximum value allowed for depth traversal limits. */
-exports.MAX_DEPTH = exports.MAX_INT32;
-/** The maximum byte length for a single segment. */
-exports.MAX_SEGMENT_LENGTH = exports.MAX_UINT32;
+exports.TS_FILE_ID = "e37ded525a68a7c9";
+/** value */
+exports.VALUE = typescript_1.factory.createIdentifier("value");
+/** void */
+exports.VOID_TYPE = typescript_1.factory.createTypeReferenceNode("void", exports.__);
 //# sourceMappingURL=constants.js.map
