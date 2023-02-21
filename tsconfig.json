@@ -1,24 +1,7 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "importHelpers": true,
-    "incremental": true,
-    "lib": ["es2015"],
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "newLine": "LF",
-    "noEmitOnError": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": false,
-    "noUnusedParameters": true,
-    "pretty": true,
-    "sourceMap": true,
-    "strict": true,
-    "stripInternal": true,
-    "target": "es2015"
+    "noEmit": false
   },
-  "include": ["packages/*/src/**/*", "packages/*/test/**/*"]
+  "extends": "../../tsconfig.json",
+  "include": ["src/**/*", "test/**/*"]
 }
