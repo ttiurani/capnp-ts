@@ -11,7 +11,7 @@ const constants_1 = require("../constants");
 const errors_1 = require("../errors");
 const util_1 = require("../util");
 const pointers_1 = require("./pointers");
-const trace = (0, debug_1.default)("capnp:segment");
+const trace = debug_1.default("capnp:segment");
 trace("load");
 class Segment {
     constructor(id, message, buffer, byteLength = 0) {
@@ -34,9 +34,9 @@ class Segment {
         trace("allocate(%d)", byteLength);
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let segment = this;
-        byteLength = (0, util_1.padToWord)(byteLength);
+        byteLength = util_1.padToWord(byteLength);
         if (byteLength > constants_1.MAX_SEGMENT_LENGTH - 8) {
-            throw new Error((0, util_1.format)(errors_1.SEG_SIZE_OVERFLOW, byteLength));
+            throw new Error(util_1.format(errors_1.SEG_SIZE_OVERFLOW, byteLength));
         }
         if (!segment.hasCapacity(byteLength)) {
             segment = segment.message.allocateSegment(byteLength);
@@ -343,7 +343,7 @@ class Segment {
         this._dv.setFloat64(byteOffset, 0, constants_1.NATIVE_LITTLE_ENDIAN);
     }
     toString() {
-        return (0, util_1.format)("Segment_id:%d,off:%a,len:%a,cap:%a", this.id, this.byteLength, this.byteOffset, this.buffer.byteLength);
+        return util_1.format("Segment_id:%d,off:%a,len:%a,cap:%a", this.id, this.byteLength, this.byteOffset, this.buffer.byteLength);
     }
 }
 exports.Segment = Segment;

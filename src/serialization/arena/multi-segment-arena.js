@@ -11,7 +11,7 @@ const errors_1 = require("../../errors");
 const util_1 = require("../../util");
 const arena_allocation_result_1 = require("./arena-allocation-result");
 const arena_kind_1 = require("./arena-kind");
-const trace = (0, debug_1.default)("capnp:arena:multi");
+const trace = debug_1.default("capnp:arena:multi");
 trace("load");
 class MultiSegmentArena {
     constructor(buffers = []) {
@@ -20,7 +20,7 @@ class MultiSegmentArena {
         trace("new %s", this);
     }
     toString() {
-        return (0, util_1.format)("MultiSegmentArena_segments:%d", getNumSegments(this));
+        return util_1.format("MultiSegmentArena_segments:%d", getNumSegments(this));
     }
 }
 exports.MultiSegmentArena = MultiSegmentArena;
@@ -28,14 +28,14 @@ MultiSegmentArena.allocate = allocate;
 MultiSegmentArena.getBuffer = getBuffer;
 MultiSegmentArena.getNumSegments = getNumSegments;
 function allocate(minSize, m) {
-    const b = new ArrayBuffer((0, util_1.padToWord)(Math.max(minSize, constants_1.DEFAULT_BUFFER_SIZE)));
+    const b = new ArrayBuffer(util_1.padToWord(Math.max(minSize, constants_1.DEFAULT_BUFFER_SIZE)));
     m.buffers.push(b);
     return new arena_allocation_result_1.ArenaAllocationResult(m.buffers.length - 1, b);
 }
 exports.allocate = allocate;
 function getBuffer(id, m) {
     if (id < 0 || id >= m.buffers.length) {
-        throw new Error((0, util_1.format)(errors_1.SEG_ID_OUT_OF_BOUNDS, id));
+        throw new Error(util_1.format(errors_1.SEG_ID_OUT_OF_BOUNDS, id));
     }
     return m.buffers[id];
 }

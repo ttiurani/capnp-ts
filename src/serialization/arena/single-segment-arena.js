@@ -11,19 +11,19 @@ const errors_1 = require("../../errors");
 const util_1 = require("../../util");
 const arena_allocation_result_1 = require("./arena-allocation-result");
 const arena_kind_1 = require("./arena-kind");
-const trace = (0, debug_1.default)("capnp:arena:single");
+const trace = debug_1.default("capnp:arena:single");
 trace("load");
 class SingleSegmentArena {
     constructor(buffer = new ArrayBuffer(constants_1.DEFAULT_BUFFER_SIZE)) {
         this.kind = arena_kind_1.ArenaKind.SINGLE_SEGMENT;
         if ((buffer.byteLength & 7) !== 0) {
-            throw new Error((0, util_1.format)(errors_1.SEG_NOT_WORD_ALIGNED, buffer.byteLength));
+            throw new Error(util_1.format(errors_1.SEG_NOT_WORD_ALIGNED, buffer.byteLength));
         }
         this.buffer = buffer;
         trace("new %s", this);
     }
     toString() {
-        return (0, util_1.format)("SingleSegmentArena_len:%x", this.buffer.byteLength);
+        return util_1.format("SingleSegmentArena_len:%x", this.buffer.byteLength);
     }
 }
 exports.SingleSegmentArena = SingleSegmentArena;
@@ -37,7 +37,7 @@ function allocate(minSize, segments, s) {
         minSize = constants_1.MIN_SINGLE_SEGMENT_GROWTH;
     }
     else {
-        minSize = (0, util_1.padToWord)(minSize);
+        minSize = util_1.padToWord(minSize);
     }
     s.buffer = new ArrayBuffer(srcBuffer.byteLength + minSize);
     // PERF: Assume that the source and destination buffers are word-aligned and use Float64Array to copy them one word
@@ -48,7 +48,7 @@ function allocate(minSize, segments, s) {
 exports.allocate = allocate;
 function getBuffer(id, s) {
     if (id !== 0)
-        throw new Error((0, util_1.format)(errors_1.SEG_GET_NON_ZERO_SINGLE, id));
+        throw new Error(util_1.format(errors_1.SEG_GET_NON_ZERO_SINGLE, id));
     return s.buffer;
 }
 exports.getBuffer = getBuffer;

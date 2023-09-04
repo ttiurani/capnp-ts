@@ -11,11 +11,11 @@ const list_element_size_1 = require("../list-element-size");
 const list_1 = require("./list");
 const pointer_1 = require("./pointer");
 const pointer_type_1 = require("./pointer-type");
-const trace = (0, debug_1.default)("capnp:text");
+const trace = debug_1.default("capnp:text");
 trace("load");
 class Text extends list_1.List {
     static fromPointer(pointer) {
-        (0, pointer_1.validate)(pointer_type_1.PointerType.LIST, pointer, list_element_size_1.ListElementSize.BYTE);
+        pointer_1.validate(pointer_type_1.PointerType.LIST, pointer, list_element_size_1.ListElementSize.BYTE);
         return textFromPointerUnchecked(pointer);
     }
     /**
@@ -28,11 +28,11 @@ class Text extends list_1.List {
         if (index !== 0) {
             trace("Called get() on %s with a strange index (%d).", this, index);
         }
-        if ((0, pointer_1.isNull)(this))
+        if (pointer_1.isNull(this))
             return "";
-        const c = (0, pointer_1.getContent)(this);
+        const c = pointer_1.getContent(this);
         // Remember to exclude the NUL byte.
-        return (0, util_1.decodeUtf8)(new Uint8Array(c.segment.buffer, c.byteOffset + index, this.getLength() - index));
+        return util_1.decodeUtf8(new Uint8Array(c.segment.buffer, c.byteOffset + index, this.getLength() - index));
     }
     /**
      * Get the number of utf-8 encoded bytes in this text. This does **not** include the NUL byte.
@@ -54,13 +54,13 @@ class Text extends list_1.List {
         if (index !== 0) {
             trace("Called set() on %s with a strange index (%d).", this, index);
         }
-        const src = (0, util_1.encodeUtf8)(value);
+        const src = util_1.encodeUtf8(value);
         const dstLength = src.byteLength + index;
         let c;
         let original;
         // TODO: Consider reusing existing space if list is already initialized and there's enough room for the value.
-        if (!(0, pointer_1.isNull)(this)) {
-            c = (0, pointer_1.getContent)(this);
+        if (!pointer_1.isNull(this)) {
+            c = pointer_1.getContent(this);
             // Only copy bytes that will remain after copying. Everything after `index` should end up truncated.
             let originalLength = this.getLength();
             if (originalLength >= index) {
@@ -70,11 +70,11 @@ class Text extends list_1.List {
                 trace("%d byte gap exists between original text and new text in %s.", index - originalLength, this);
             }
             original = new Uint8Array(c.segment.buffer.slice(c.byteOffset, c.byteOffset + Math.min(originalLength, index)));
-            (0, pointer_1.erase)(this);
+            pointer_1.erase(this);
         }
         // Always allocate an extra byte for the NUL byte.
-        (0, list_1.initList)(list_element_size_1.ListElementSize.BYTE, dstLength + 1, this);
-        c = (0, pointer_1.getContent)(this);
+        list_1.initList(list_element_size_1.ListElementSize.BYTE, dstLength + 1, this);
+        c = pointer_1.getContent(this);
         const dst = new Uint8Array(c.segment.buffer, c.byteOffset, dstLength);
         if (original)
             dst.set(original);

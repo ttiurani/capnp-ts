@@ -15,7 +15,7 @@ const pointers_1 = require("./pointers");
 const segment_1 = require("./segment");
 const pointer_1 = require("./pointers/pointer");
 const struct_1 = require("./pointers/struct");
-const trace = (0, debug_1.default)("capnp:message");
+const trace = debug_1.default("capnp:message");
 trace("load");
 class Message {
     /**
@@ -156,7 +156,7 @@ function initMessage(src, packed = true, singleSegment = false) {
         buf = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
     }
     if (packed)
-        buf = (0, packing_1.unpack)(buf);
+        buf = packing_1.unpack(buf);
     if (singleSegment) {
         return {
             arena: new arena_1.SingleSegmentArena(buf),
@@ -243,7 +243,7 @@ function allocateSegment(byteLength, m) {
         m._capnp.segments.push(s);
     }
     else if (res.id < 0 || res.id > m._capnp.segments.length) {
-        throw new Error((0, util_1.format)(errors_1.MSG_SEGMENT_OUT_OF_BOUNDS, res.id, m));
+        throw new Error(util_1.format(errors_1.MSG_SEGMENT_OUT_OF_BOUNDS, res.id, m));
     }
     else {
         s = m._capnp.segments[res.id];
@@ -262,21 +262,21 @@ function dump(m) {
         r += `================\nSegment #${i}\n================\n`;
         const { buffer, byteLength } = m._capnp.segments[i];
         const b = new Uint8Array(buffer, 0, byteLength);
-        r += (0, util_1.dumpBuffer)(b);
+        r += util_1.dumpBuffer(b);
     }
     return r;
 }
 exports.dump = dump;
 function getRoot(RootStruct, m) {
     const root = new RootStruct(m.getSegment(0), 0);
-    (0, pointer_1.validate)(pointers_1.PointerType.STRUCT, root);
-    const ts = (0, pointer_1.getTargetStructSize)(root);
+    pointer_1.validate(pointers_1.PointerType.STRUCT, root);
+    const ts = pointer_1.getTargetStructSize(root);
     // Make sure the underlying pointer is actually big enough to hold the data and pointers as specified in the schema.
     // If not a shallow copy of the struct contents needs to be made before returning.
     if (ts.dataByteLength < RootStruct._capnp.size.dataByteLength ||
         ts.pointerLength < RootStruct._capnp.size.pointerLength) {
         trace("need to resize root struct %s", root);
-        (0, struct_1.resize)(RootStruct._capnp.size, root);
+        struct_1.resize(RootStruct._capnp.size, root);
     }
     return root;
 }
@@ -302,14 +302,14 @@ function getSegment(id, m) {
         return m._capnp.segments[0];
     }
     if (id < 0 || id >= segmentLength) {
-        throw new Error((0, util_1.format)(errors_1.MSG_SEGMENT_OUT_OF_BOUNDS, id, m));
+        throw new Error(util_1.format(errors_1.MSG_SEGMENT_OUT_OF_BOUNDS, id, m));
     }
     return m._capnp.segments[id];
 }
 exports.getSegment = getSegment;
 function initRoot(RootStruct, m) {
     const root = new RootStruct(m.getSegment(0), 0);
-    (0, struct_1.initStruct)(RootStruct._capnp.size, root);
+    struct_1.initStruct(RootStruct._capnp.size, root);
     trace("Initialized root pointer %s for %s.", root, m);
     return root;
 }
@@ -340,12 +340,12 @@ function toArrayBuffer(m) {
         getSegment(0, m);
     const segments = m._capnp.segments;
     // Add space for the stream framing.
-    const totalLength = streamFrame.byteLength + segments.reduce((l, s) => l + (0, util_1.padToWord)(s.byteLength), 0);
+    const totalLength = streamFrame.byteLength + segments.reduce((l, s) => l + util_1.padToWord(s.byteLength), 0);
     const out = new Uint8Array(new ArrayBuffer(totalLength));
     let o = streamFrame.byteLength;
     out.set(new Uint8Array(streamFrame));
     segments.forEach((s) => {
-        const segmentLength = (0, util_1.padToWord)(s.byteLength);
+        const segmentLength = util_1.padToWord(s.byteLength);
         out.set(new Uint8Array(s.buffer, 0, segmentLength), o);
         o += segmentLength;
     });
@@ -353,14 +353,14 @@ function toArrayBuffer(m) {
 }
 exports.toArrayBuffer = toArrayBuffer;
 function toPackedArrayBuffer(m) {
-    const streamFrame = (0, packing_1.pack)(getStreamFrame(m));
+    const streamFrame = packing_1.pack(getStreamFrame(m));
     // Make sure the first segment is allocated.
     if (m._capnp.segments.length === 0)
         m.getSegment(0);
     // NOTE: A copy operation can be avoided here if we capture the intermediate array and use that directly in the copy
     // loop below, rather than have `pack()` copy it to an ArrayBuffer just to have to copy it again later. If the
     // intermediate array can be avoided altogether that's even better!
-    const segments = m._capnp.segments.map((s) => (0, packing_1.pack)(s.buffer, 0, (0, util_1.padToWord)(s.byteLength)));
+    const segments = m._capnp.segments.map((s) => packing_1.pack(s.buffer, 0, util_1.padToWord(s.byteLength)));
     const totalLength = streamFrame.byteLength + segments.reduce((l, s) => l + s.byteLength, 0);
     const out = new Uint8Array(new ArrayBuffer(totalLength));
     let o = streamFrame.byteLength;

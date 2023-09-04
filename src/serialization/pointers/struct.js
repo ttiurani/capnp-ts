@@ -16,7 +16,7 @@ const pointer_1 = require("./pointer");
 const pointer_type_1 = require("./pointer-type");
 const text_1 = require("./text");
 const errors_1 = require("../../errors");
-const trace = (0, debug_1.default)("capnp:struct");
+const trace = debug_1.default("capnp:struct");
 trace("load");
 // Used to apply bit masks (default values).
 const TMP_WORD = new DataView(new ArrayBuffer(8));
@@ -44,7 +44,7 @@ class Struct extends pointer_1.Pointer {
     toString() {
         return (`Struct_${super.toString()}` +
             `${this._capnp.compositeIndex === undefined ? "" : `,ci:${this._capnp.compositeIndex}`}` +
-            ` > ${(0, pointer_1.getContent)(this).toString()}`);
+            ` > ${pointer_1.getContent(this).toString()}`);
     }
 }
 exports.Struct = Struct;
@@ -96,13 +96,13 @@ Struct.testWhich = testWhich;
  */
 function initStruct(size, s) {
     if (s._capnp.compositeIndex !== undefined) {
-        throw new Error((0, util_1.format)(errors_1.PTR_INIT_COMPOSITE_STRUCT, s));
+        throw new Error(util_1.format(errors_1.PTR_INIT_COMPOSITE_STRUCT, s));
     }
     // Make sure to clear existing contents before overwriting the pointer data (erase is a noop if already empty).
-    (0, pointer_1.erase)(s);
-    const c = s.segment.allocate((0, object_size_1.getByteLength)(size));
-    const res = (0, pointer_1.initPointer)(c.segment, c.byteOffset, s);
-    (0, pointer_1.setStructPointer)(res.offsetWords, size, res.pointer);
+    pointer_1.erase(s);
+    const c = s.segment.allocate(object_size_1.getByteLength(size));
+    const res = pointer_1.initPointer(c.segment, c.byteOffset, s);
+    pointer_1.setStructPointer(res.offsetWords, size, res.pointer);
 }
 exports.initStruct = initStruct;
 function initStructAt(index, StructClass, p) {
@@ -123,31 +123,31 @@ exports.initStructAt = initStructAt;
  */
 function resize(dstSize, s) {
     const srcSize = getSize(s);
-    const srcContent = (0, pointer_1.getContent)(s);
-    const dstContent = s.segment.allocate((0, object_size_1.getByteLength)(dstSize));
+    const srcContent = pointer_1.getContent(s);
+    const dstContent = s.segment.allocate(object_size_1.getByteLength(dstSize));
     // Only copy the data section for now. The pointer section will need to be rewritten.
-    dstContent.segment.copyWords(dstContent.byteOffset, srcContent.segment, srcContent.byteOffset, Math.min((0, object_size_1.getDataWordLength)(srcSize), (0, object_size_1.getDataWordLength)(dstSize)));
-    const res = (0, pointer_1.initPointer)(dstContent.segment, dstContent.byteOffset, s);
-    (0, pointer_1.setStructPointer)(res.offsetWords, dstSize, res.pointer);
+    dstContent.segment.copyWords(dstContent.byteOffset, srcContent.segment, srcContent.byteOffset, Math.min(object_size_1.getDataWordLength(srcSize), object_size_1.getDataWordLength(dstSize)));
+    const res = pointer_1.initPointer(dstContent.segment, dstContent.byteOffset, s);
+    pointer_1.setStructPointer(res.offsetWords, dstSize, res.pointer);
     // Iterate through the new pointer section and update the offsets so they point to the right place. This is a bit
     // more complicated than it appears due to the fact that the original pointers could have been far pointers, and
     // the new pointers might need to be allocated as far pointers if the segment is full.
     for (let i = 0; i < Math.min(srcSize.pointerLength, dstSize.pointerLength); i++) {
         const srcPtr = new pointer_1.Pointer(srcContent.segment, srcContent.byteOffset + srcSize.dataByteLength + i * 8);
-        if ((0, pointer_1.isNull)(srcPtr)) {
+        if (pointer_1.isNull(srcPtr)) {
             // If source pointer is null, leave the destination pointer as default null.
             continue;
         }
-        const srcPtrTarget = (0, pointer_1.followFars)(srcPtr);
-        const srcPtrContent = (0, pointer_1.getContent)(srcPtr);
+        const srcPtrTarget = pointer_1.followFars(srcPtr);
+        const srcPtrContent = pointer_1.getContent(srcPtr);
         const dstPtr = new pointer_1.Pointer(dstContent.segment, dstContent.byteOffset + dstSize.dataByteLength + i * 8);
         // For composite lists the offset needs to point to the tag word, not the first element which is what getContent
         // returns.
-        if ((0, pointer_1.getTargetPointerType)(srcPtr) === pointer_type_1.PointerType.LIST &&
-            (0, pointer_1.getTargetListElementSize)(srcPtr) === list_element_size_1.ListElementSize.COMPOSITE) {
+        if (pointer_1.getTargetPointerType(srcPtr) === pointer_type_1.PointerType.LIST &&
+            pointer_1.getTargetListElementSize(srcPtr) === list_element_size_1.ListElementSize.COMPOSITE) {
             srcPtrContent.byteOffset -= 8;
         }
-        const r = (0, pointer_1.initPointer)(srcPtrContent.segment, srcPtrContent.byteOffset, dstPtr);
+        const r = pointer_1.initPointer(srcPtrContent.segment, srcPtrContent.byteOffset, dstPtr);
         // Read the old pointer data, but discard the original offset.
         const a = srcPtrTarget.segment.getUint8(srcPtrTarget.byteOffset) & 0x03;
         const b = srcPtrTarget.segment.getUint32(srcPtrTarget.byteOffset + 4);
@@ -155,19 +155,19 @@ function resize(dstSize, s) {
         r.pointer.segment.setUint32(r.pointer.byteOffset + 4, b);
     }
     // Zero out the old data and pointer sections.
-    srcContent.segment.fillZeroWords(srcContent.byteOffset, (0, object_size_1.getWordLength)(srcSize));
+    srcContent.segment.fillZeroWords(srcContent.byteOffset, object_size_1.getWordLength(srcSize));
 }
 exports.resize = resize;
 function adopt(src, s) {
     if (s._capnp.compositeIndex !== undefined) {
-        throw new Error((0, util_1.format)(errors_1.PTR_ADOPT_COMPOSITE_STRUCT, s));
+        throw new Error(util_1.format(errors_1.PTR_ADOPT_COMPOSITE_STRUCT, s));
     }
     pointer_1.Pointer.adopt(src, s);
 }
 exports.adopt = adopt;
 function disown(s) {
     if (s._capnp.compositeIndex !== undefined) {
-        throw new Error((0, util_1.format)(errors_1.PTR_DISOWN_COMPOSITE_STRUCT, s));
+        throw new Error(util_1.format(errors_1.PTR_DISOWN_COMPOSITE_STRUCT, s));
     }
     return pointer_1.Pointer.disown(s);
 }
@@ -211,7 +211,7 @@ function getData(index, s, defaultValue) {
     const ps = getPointerSection(s);
     ps.byteOffset += index * 8;
     const l = new data_1.Data(ps.segment, ps.byteOffset, s._capnp.depthLimit - 1);
-    if ((0, pointer_1.isNull)(l)) {
+    if (pointer_1.isNull(l)) {
         if (defaultValue) {
             pointer_1.Pointer.copyFrom(defaultValue, l);
         }
@@ -223,7 +223,7 @@ function getData(index, s, defaultValue) {
 }
 exports.getData = getData;
 function getDataSection(s) {
-    return (0, pointer_1.getContent)(s);
+    return pointer_1.getContent(s);
 }
 exports.getDataSection = getDataSection;
 /**
@@ -349,7 +349,7 @@ function getList(index, ListClass, s, defaultValue) {
     const ps = getPointerSection(s);
     ps.byteOffset += index * 8;
     const l = new ListClass(ps.segment, ps.byteOffset, s._capnp.depthLimit - 1);
-    if ((0, pointer_1.isNull)(l)) {
+    if (pointer_1.isNull(l)) {
         if (defaultValue) {
             pointer_1.Pointer.copyFrom(defaultValue, l);
         }
@@ -361,36 +361,36 @@ function getList(index, ListClass, s, defaultValue) {
         // If this is a composite list we need to be sure the composite elements are big enough to hold everything as
         // specified in the schema. If the new schema has added fields we'll need to "resize" (shallow-copy) the list so
         // it has room for the new fields.
-        const srcSize = (0, pointer_1.getTargetCompositeListSize)(l);
+        const srcSize = pointer_1.getTargetCompositeListSize(l);
         const dstSize = ListClass._capnp.compositeSize;
         if (dstSize.dataByteLength > srcSize.dataByteLength || dstSize.pointerLength > srcSize.pointerLength) {
-            const srcContent = (0, pointer_1.getContent)(l);
-            const srcLength = (0, pointer_1.getTargetListLength)(l);
-            trace("resizing composite list %s due to protocol upgrade, new size: %d", l, (0, object_size_1.getByteLength)(dstSize) * srcLength);
+            const srcContent = pointer_1.getContent(l);
+            const srcLength = pointer_1.getTargetListLength(l);
+            trace("resizing composite list %s due to protocol upgrade, new size: %d", l, object_size_1.getByteLength(dstSize) * srcLength);
             // Allocate an extra 8 bytes for the tag.
-            const dstContent = l.segment.allocate((0, object_size_1.getByteLength)(dstSize) * srcLength + 8);
-            const res = (0, pointer_1.initPointer)(dstContent.segment, dstContent.byteOffset, l);
-            (0, pointer_1.setListPointer)(res.offsetWords, ListClass._capnp.size, srcLength, res.pointer, dstSize);
+            const dstContent = l.segment.allocate(object_size_1.getByteLength(dstSize) * srcLength + 8);
+            const res = pointer_1.initPointer(dstContent.segment, dstContent.byteOffset, l);
+            pointer_1.setListPointer(res.offsetWords, ListClass._capnp.size, srcLength, res.pointer, dstSize);
             // Write the new tag word.
-            (0, pointer_1.setStructPointer)(srcLength, dstSize, dstContent);
+            pointer_1.setStructPointer(srcLength, dstSize, dstContent);
             // Seek ahead past the tag word before copying the content.
             dstContent.byteOffset += 8;
             for (let i = 0; i < srcLength; i++) {
-                const srcElementOffset = srcContent.byteOffset + i * (0, object_size_1.getByteLength)(srcSize);
-                const dstElementOffset = dstContent.byteOffset + i * (0, object_size_1.getByteLength)(dstSize);
+                const srcElementOffset = srcContent.byteOffset + i * object_size_1.getByteLength(srcSize);
+                const dstElementOffset = dstContent.byteOffset + i * object_size_1.getByteLength(dstSize);
                 // Copy the data section.
-                dstContent.segment.copyWords(dstElementOffset, srcContent.segment, srcElementOffset, (0, object_size_1.getWordLength)(srcSize));
+                dstContent.segment.copyWords(dstElementOffset, srcContent.segment, srcElementOffset, object_size_1.getWordLength(srcSize));
                 // Iterate through the pointers and update the offsets so they point to the right place.
                 for (let j = 0; j < srcSize.pointerLength; j++) {
                     const srcPtr = new pointer_1.Pointer(srcContent.segment, srcElementOffset + srcSize.dataByteLength + j * 8);
                     const dstPtr = new pointer_1.Pointer(dstContent.segment, dstElementOffset + dstSize.dataByteLength + j * 8);
-                    const srcPtrTarget = (0, pointer_1.followFars)(srcPtr);
-                    const srcPtrContent = (0, pointer_1.getContent)(srcPtr);
-                    if ((0, pointer_1.getTargetPointerType)(srcPtr) === pointer_type_1.PointerType.LIST &&
-                        (0, pointer_1.getTargetListElementSize)(srcPtr) === list_element_size_1.ListElementSize.COMPOSITE) {
+                    const srcPtrTarget = pointer_1.followFars(srcPtr);
+                    const srcPtrContent = pointer_1.getContent(srcPtr);
+                    if (pointer_1.getTargetPointerType(srcPtr) === pointer_type_1.PointerType.LIST &&
+                        pointer_1.getTargetListElementSize(srcPtr) === list_element_size_1.ListElementSize.COMPOSITE) {
                         srcPtrContent.byteOffset -= 8;
                     }
-                    const r = (0, pointer_1.initPointer)(srcPtrContent.segment, srcPtrContent.byteOffset, dstPtr);
+                    const r = pointer_1.initPointer(srcPtrContent.segment, srcPtrContent.byteOffset, dstPtr);
                     // Read the old pointer data, but discard the original offset.
                     const a = srcPtrTarget.segment.getUint8(srcPtrTarget.byteOffset) & 0x03;
                     const b = srcPtrTarget.segment.getUint32(srcPtrTarget.byteOffset + 4);
@@ -399,7 +399,7 @@ function getList(index, ListClass, s, defaultValue) {
                 }
             }
             // Zero out the old content.
-            srcContent.segment.fillZeroWords(srcContent.byteOffset, (0, object_size_1.getWordLength)(srcSize) * srcLength);
+            srcContent.segment.fillZeroWords(srcContent.byteOffset, object_size_1.getWordLength(srcSize) * srcLength);
         }
     }
     return l;
@@ -420,24 +420,24 @@ function getPointerAs(index, PointerClass, s) {
 }
 exports.getPointerAs = getPointerAs;
 function getPointerSection(s) {
-    const ps = (0, pointer_1.getContent)(s);
-    ps.byteOffset += (0, util_1.padToWord)(getSize(s).dataByteLength);
+    const ps = pointer_1.getContent(s);
+    ps.byteOffset += util_1.padToWord(getSize(s).dataByteLength);
     return ps;
 }
 exports.getPointerSection = getPointerSection;
 function getSize(s) {
     if (s._capnp.compositeIndex !== undefined) {
         // For composite lists the object size is stored in a tag word right before the content.
-        const c = (0, pointer_1.getContent)(s, true);
+        const c = pointer_1.getContent(s, true);
         c.byteOffset -= 8;
-        return (0, pointer_1.getStructSize)(c);
+        return pointer_1.getStructSize(c);
     }
-    return (0, pointer_1.getTargetStructSize)(s);
+    return pointer_1.getTargetStructSize(s);
 }
 exports.getSize = getSize;
 function getStruct(index, StructClass, s, defaultValue) {
     const t = getPointerAs(index, StructClass, s);
-    if ((0, pointer_1.isNull)(t)) {
+    if (pointer_1.isNull(t)) {
         if (defaultValue) {
             pointer_1.Pointer.copyFrom(defaultValue, t);
         }
@@ -446,8 +446,8 @@ function getStruct(index, StructClass, s, defaultValue) {
         }
     }
     else {
-        (0, pointer_1.validate)(pointer_type_1.PointerType.STRUCT, t);
-        const ts = (0, pointer_1.getTargetStructSize)(t);
+        pointer_1.validate(pointer_type_1.PointerType.STRUCT, t);
+        const ts = pointer_1.getTargetStructSize(t);
         // This can happen when reading a struct that was constructed with an older version of the same schema, and new
         // fields were added to the struct. A shallow copy of the struct will be made so that there's enough room for the
         // data and pointer sections. This will unfortunately leave a "hole" of zeroes in the message, but that hole will
@@ -464,7 +464,7 @@ exports.getStruct = getStruct;
 function getText(index, s, defaultValue) {
     const t = text_1.Text.fromPointer(getPointer(index, s));
     // FIXME: This will perform an unnecessary string<>ArrayBuffer roundtrip.
-    if ((0, pointer_1.isNull)(t) && defaultValue)
+    if (pointer_1.isNull(t) && defaultValue)
         t.set(0, defaultValue);
     return t.get(0);
 }
@@ -550,7 +550,7 @@ function initData(index, length, s) {
     const ps = getPointerSection(s);
     ps.byteOffset += index * 8;
     const l = new data_1.Data(ps.segment, ps.byteOffset, s._capnp.depthLimit - 1);
-    (0, pointer_1.erase)(l);
+    pointer_1.erase(l);
     list_1.List.initList(list_element_size_1.ListElementSize.BYTE, length, l);
     return l;
 }
@@ -560,7 +560,7 @@ function initList(index, ListClass, length, s) {
     const ps = getPointerSection(s);
     ps.byteOffset += index * 8;
     const l = new ListClass(ps.segment, ps.byteOffset, s._capnp.depthLimit - 1);
-    (0, pointer_1.erase)(l);
+    pointer_1.erase(l);
     list_1.List.initList(ListClass._capnp.size, length, l, ListClass._capnp.compositeSize);
     return l;
 }
@@ -725,7 +725,7 @@ function setInt8(byteOffset, value, s, defaultMask) {
 }
 exports.setInt8 = setInt8;
 function setPointer(index, value, s) {
-    (0, pointer_1.copyFrom)(value, getPointer(index, s));
+    pointer_1.copyFrom(value, getPointer(index, s));
 }
 exports.setPointer = setPointer;
 function setText(index, value, s) {
@@ -816,21 +816,21 @@ function setVoid() {
 exports.setVoid = setVoid;
 function testWhich(name, found, wanted, s) {
     if (found !== wanted) {
-        throw new Error((0, util_1.format)(errors_1.PTR_INVALID_UNION_ACCESS, s, name, found, wanted));
+        throw new Error(util_1.format(errors_1.PTR_INVALID_UNION_ACCESS, s, name, found, wanted));
     }
 }
 exports.testWhich = testWhich;
 function checkDataBounds(byteOffset, byteLength, s) {
     const dataByteLength = getSize(s).dataByteLength;
     if (byteOffset < 0 || byteLength < 0 || byteOffset + byteLength > dataByteLength) {
-        throw new Error((0, util_1.format)(errors_1.PTR_STRUCT_DATA_OUT_OF_BOUNDS, s, byteLength, byteOffset, dataByteLength));
+        throw new Error(util_1.format(errors_1.PTR_STRUCT_DATA_OUT_OF_BOUNDS, s, byteLength, byteOffset, dataByteLength));
     }
 }
 exports.checkDataBounds = checkDataBounds;
 function checkPointerBounds(index, s) {
     const pointerLength = getSize(s).pointerLength;
     if (index < 0 || index >= pointerLength) {
-        throw new Error((0, util_1.format)(errors_1.PTR_STRUCT_POINTER_OUT_OF_BOUNDS, s, index, pointerLength));
+        throw new Error(util_1.format(errors_1.PTR_STRUCT_POINTER_OUT_OF_BOUNDS, s, index, pointerLength));
     }
 }
 exports.checkPointerBounds = checkPointerBounds;

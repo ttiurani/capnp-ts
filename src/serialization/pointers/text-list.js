@@ -10,16 +10,16 @@ const list_element_size_1 = require("../list-element-size");
 const list_1 = require("./list");
 const text_1 = require("./text");
 const pointer_1 = require("./pointer");
-const trace = (0, debug_1.default)("capnp:list:composite");
+const trace = debug_1.default("capnp:list:composite");
 trace("load");
 class TextList extends list_1.List {
     get(index) {
-        const c = (0, pointer_1.getContent)(this);
+        const c = pointer_1.getContent(this);
         c.byteOffset += index * 8;
         return text_1.Text.fromPointer(c).get(0);
     }
     set(index, value) {
-        const c = (0, pointer_1.getContent)(this);
+        const c = pointer_1.getContent(this);
         c.byteOffset += index * 8;
         text_1.Text.fromPointer(c).set(0, value);
     }

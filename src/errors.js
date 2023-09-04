@@ -5,11 +5,11 @@
  * @author jdiaz5513
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PTR_WRITE_CONST_STRUCT = exports.PTR_WRITE_CONST_LIST = exports.TYPE_SET_GENERIC_LIST = exports.TYPE_GET_GENERIC_LIST = exports.TYPE_COMPOSITE_SIZE_UNDEFINED = exports.SEG_SIZE_OVERFLOW = exports.SEG_REPLACEMENT_BUFFER_TOO_SMALL = exports.SEG_NOT_WORD_ALIGNED = exports.SEG_ID_OUT_OF_BOUNDS = exports.SEG_GET_NON_ZERO_SINGLE = exports.SEG_BUFFER_NOT_ALLOCATED = exports.RANGE_UINT32_OVERFLOW = exports.RANGE_SIZE_OVERFLOW = exports.RANGE_INVALID_UTF8 = exports.RANGE_INT64_UNDERFLOW = exports.RANGE_INT32_OVERFLOW = exports.PTR_WRONG_STRUCT_PTR_SIZE = exports.PTR_WRONG_STRUCT_DATA_SIZE = exports.PTR_WRONG_COMPOSITE_PTR_SIZE = exports.PTR_WRONG_COMPOSITE_DATA_SIZE = exports.PTR_WRONG_POINTER_TYPE = exports.PTR_WRONG_LIST_TYPE = exports.PTR_TRAVERSAL_LIMIT_EXCEEDED = exports.PTR_STRUCT_POINTER_OUT_OF_BOUNDS = exports.PTR_STRUCT_DATA_OUT_OF_BOUNDS = exports.PTR_OFFSET_OUT_OF_BOUNDS = exports.PTR_INVALID_UNION_ACCESS = exports.PTR_INVALID_POINTER_TYPE = exports.PTR_INVALID_LIST_SIZE = exports.PTR_INVALID_FAR_TARGET = exports.PTR_INIT_NON_GROUP = exports.PTR_INIT_COMPOSITE_STRUCT = exports.PTR_DISOWN_COMPOSITE_STRUCT = exports.PTR_DEPTH_LIMIT_EXCEEDED = exports.PTR_COMPOSITE_SIZE_UNDEFINED = exports.PTR_ALREADY_ADOPTED = exports.PTR_ADOPT_WRONG_MESSAGE = exports.PTR_ADOPT_COMPOSITE_STRUCT = exports.NOT_IMPLEMENTED = exports.MSG_SEGMENT_TOO_SMALL = exports.MSG_SEGMENT_OUT_OF_BOUNDS = exports.MSG_PACK_NOT_WORD_ALIGNED = exports.MSG_NO_SEGMENTS_IN_ARENA = exports.MSG_INVALID_FRAME_HEADER = exports.assertNever = exports.INVARIANT_UNREACHABLE_CODE = void 0;
+exports.PTR_COMPOSITE_LIST_INVALID_INDEX = exports.PTR_WRITE_CONST_STRUCT = exports.PTR_WRITE_CONST_LIST = exports.TYPE_SET_GENERIC_LIST = exports.TYPE_GET_GENERIC_LIST = exports.TYPE_COMPOSITE_SIZE_UNDEFINED = exports.SEG_SIZE_OVERFLOW = exports.SEG_REPLACEMENT_BUFFER_TOO_SMALL = exports.SEG_NOT_WORD_ALIGNED = exports.SEG_ID_OUT_OF_BOUNDS = exports.SEG_GET_NON_ZERO_SINGLE = exports.SEG_BUFFER_NOT_ALLOCATED = exports.RANGE_UINT32_OVERFLOW = exports.RANGE_SIZE_OVERFLOW = exports.RANGE_INVALID_UTF8 = exports.RANGE_INT64_UNDERFLOW = exports.RANGE_INT32_OVERFLOW = exports.PTR_WRONG_STRUCT_PTR_SIZE = exports.PTR_WRONG_STRUCT_DATA_SIZE = exports.PTR_WRONG_COMPOSITE_PTR_SIZE = exports.PTR_WRONG_COMPOSITE_DATA_SIZE = exports.PTR_WRONG_POINTER_TYPE = exports.PTR_WRONG_LIST_TYPE = exports.PTR_TRAVERSAL_LIMIT_EXCEEDED = exports.PTR_STRUCT_POINTER_OUT_OF_BOUNDS = exports.PTR_STRUCT_DATA_OUT_OF_BOUNDS = exports.PTR_OFFSET_OUT_OF_BOUNDS = exports.PTR_INVALID_UNION_ACCESS = exports.PTR_INVALID_POINTER_TYPE = exports.PTR_INVALID_LIST_SIZE = exports.PTR_INVALID_FAR_TARGET = exports.PTR_INIT_NON_GROUP = exports.PTR_INIT_COMPOSITE_STRUCT = exports.PTR_DISOWN_COMPOSITE_STRUCT = exports.PTR_DEPTH_LIMIT_EXCEEDED = exports.PTR_COMPOSITE_SIZE_UNDEFINED = exports.PTR_ALREADY_ADOPTED = exports.PTR_ADOPT_WRONG_MESSAGE = exports.PTR_ADOPT_COMPOSITE_STRUCT = exports.NOT_IMPLEMENTED = exports.MSG_SEGMENT_TOO_SMALL = exports.MSG_SEGMENT_OUT_OF_BOUNDS = exports.MSG_PACK_NOT_WORD_ALIGNED = exports.MSG_NO_SEGMENTS_IN_ARENA = exports.MSG_INVALID_FRAME_HEADER = exports.assertNever = exports.INVARIANT_UNREACHABLE_CODE = void 0;
 const tslib_1 = require("tslib");
 const debug_1 = tslib_1.__importDefault(require("debug"));
 const constants_1 = require("./constants");
-const trace = (0, debug_1.default)("capnp:errors");
+const trace = debug_1.default("capnp:errors");
 trace("load");
 // Invariant violations (sometimes known as "precondition failed").
 //
@@ -83,4 +83,6 @@ exports.TYPE_GET_GENERIC_LIST = "CAPNP-TS041 Attempted to call get() on a generi
 exports.TYPE_SET_GENERIC_LIST = "CAPNP-TS042 Attempted to call set() on a generic list.";
 exports.PTR_WRITE_CONST_LIST = "CAPNP-TS043 Attempted to write to a const list.";
 exports.PTR_WRITE_CONST_STRUCT = "CAPNP-TS044 Attempted to write to a const struct.";
+// Custom error messages for the composite list setting.
+exports.PTR_COMPOSITE_LIST_INVALID_INDEX = "CAPNP-TS045 Index %d exceeds the size of the list %d.";
 //# sourceMappingURL=errors.js.map

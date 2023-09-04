@@ -10,7 +10,7 @@ const tslib_1 = require("tslib");
 const debug_1 = tslib_1.__importDefault(require("debug"));
 const constants_1 = require("./constants");
 const errors_1 = require("./errors");
-const trace = (0, debug_1.default)("capnp:util");
+const trace = debug_1.default("capnp:util");
 trace("load");
 /**
  * Dump a hex string from the given buffer.

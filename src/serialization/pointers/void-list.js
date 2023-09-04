@@ -8,5 +8,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.VoidList = void 0;
 const pointer_list_1 = require("./pointer-list");
 const void_1 = require("./void");
-exports.VoidList = (0, pointer_list_1.PointerList)(void_1.Void);
+exports.VoidList = pointer_list_1.PointerList(void_1.Void);
 //# sourceMappingURL=void-list.js.map

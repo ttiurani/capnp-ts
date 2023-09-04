@@ -10,7 +10,7 @@ const list_element_size_1 = require("../list-element-size");
 const list_1 = require("./list");
 const pointer_1 = require("./pointer");
 const pointer_type_1 = require("./pointer-type");
-const trace = (0, debug_1.default)("capnp:data");
+const trace = debug_1.default("capnp:data");
 trace("load");
 /**
  * A generic blob of bytes. Can be converted to a DataView or Uint8Array to access its contents using `toDataView()` and
@@ -22,7 +22,7 @@ trace("load");
  */
 class Data extends list_1.List {
     static fromPointer(pointer) {
-        (0, pointer_1.validate)(pointer_type_1.PointerType.LIST, pointer, list_element_size_1.ListElementSize.BYTE);
+        pointer_1.validate(pointer_type_1.PointerType.LIST, pointer, list_element_size_1.ListElementSize.BYTE);
         return this._fromPointerUnchecked(pointer);
     }
     static _fromPointerUnchecked(pointer) {
@@ -38,7 +38,7 @@ class Data extends list_1.List {
     // TODO: Would be nice to have a way to zero-copy a buffer by allocating a new segment into the message with that
     // buffer data.
     copyBuffer(src) {
-        const c = (0, pointer_1.getContent)(this);
+        const c = pointer_1.getContent(this);
         const dstLength = this.getLength();
         const srcLength = src.byteLength;
         const i = src instanceof ArrayBuffer
@@ -61,7 +61,7 @@ class Data extends list_1.List {
      * @returns {number} The byte value.
      */
     get(byteOffset) {
-        const c = (0, pointer_1.getContent)(this);
+        const c = pointer_1.getContent(this);
         return c.segment.getUint8(c.byteOffset + byteOffset);
     }
     /**
@@ -72,7 +72,7 @@ class Data extends list_1.List {
      * @returns {void}
      */
     set(byteOffset, value) {
-        const c = (0, pointer_1.getContent)(this);
+        const c = pointer_1.getContent(this);
         c.segment.setUint8(c.byteOffset + byteOffset, value);
     }
     /**
@@ -83,7 +83,7 @@ class Data extends list_1.List {
      * @returns {ArrayBuffer} A copy of this data buffer.
      */
     toArrayBuffer() {
-        const c = (0, pointer_1.getContent)(this);
+        const c = pointer_1.getContent(this);
         return c.segment.buffer.slice(c.byteOffset, c.byteOffset + this.getLength());
     }
     /**
@@ -95,7 +95,7 @@ class Data extends list_1.List {
      * @returns {DataView} A live reference to the underlying buffer.
      */
     toDataView() {
-        const c = (0, pointer_1.getContent)(this);
+        const c = pointer_1.getContent(this);
         return new DataView(c.segment.buffer, c.byteOffset, this.getLength());
     }
     toString() {
@@ -110,7 +110,7 @@ class Data extends list_1.List {
      * @returns {DataView} A live reference to the underlying buffer.
      */
     toUint8Array() {
-        const c = (0, pointer_1.getContent)(this);
+        const c = pointer_1.getContent(this);
         return new Uint8Array(c.segment.buffer, c.byteOffset, this.getLength());
     }
 }

@@ -11,7 +11,7 @@ const util_1 = require("../../util");
 const list_element_size_1 = require("../list-element-size");
 const object_size_1 = require("../object-size");
 const pointer_1 = require("./pointer");
-const trace = (0, debug_1.default)("capnp:list");
+const trace = debug_1.default("capnp:list");
 trace("load");
 /**
  * A generic list class. Implements Filterable,
@@ -122,7 +122,7 @@ class List extends pointer_1.Pointer {
      * @returns {number} The number of elements in this list.
      */
     getLength() {
-        return (0, pointer_1.getTargetListLength)(this);
+        return pointer_1.getTargetListLength(this);
     }
     groupBy(callbackfn) {
         const length = this.getLength();
@@ -234,31 +234,31 @@ function initList(elementSize, length, l, compositeSize) {
         case list_element_size_1.ListElementSize.BYTE_4:
         case list_element_size_1.ListElementSize.BYTE_8:
         case list_element_size_1.ListElementSize.POINTER:
-            c = l.segment.allocate(length * (0, pointer_1.getListElementByteLength)(elementSize));
+            c = l.segment.allocate(length * pointer_1.getListElementByteLength(elementSize));
             break;
         case list_element_size_1.ListElementSize.COMPOSITE: {
             if (compositeSize === undefined) {
-                throw new Error((0, util_1.format)(errors_1.PTR_COMPOSITE_SIZE_UNDEFINED));
+                throw new Error(util_1.format(errors_1.PTR_COMPOSITE_SIZE_UNDEFINED));
             }
-            compositeSize = (0, object_size_1.padToWord)(compositeSize);
-            const byteLength = (0, object_size_1.getByteLength)(compositeSize) * length;
+            compositeSize = object_size_1.padToWord(compositeSize);
+            const byteLength = object_size_1.getByteLength(compositeSize) * length;
             // We need to allocate an extra 8 bytes for the tag word, then make sure we write the length to it. We advance
             // the content pointer by 8 bytes so that it then points to the first list element as intended. Everything
             // starts off zeroed out so these nested structs don't need to be initialized in any way.
             c = l.segment.allocate(byteLength + 8);
-            (0, pointer_1.setStructPointer)(length, compositeSize, c);
+            pointer_1.setStructPointer(length, compositeSize, c);
             trace("Wrote composite tag word %s for %s.", c, l);
             break;
         }
         case list_element_size_1.ListElementSize.VOID:
             // No need to allocate anything, we can write the list pointer right here.
-            (0, pointer_1.setListPointer)(0, elementSize, length, l);
+            pointer_1.setListPointer(0, elementSize, length, l);
             return;
         default:
-            throw new Error((0, util_1.format)(errors_1.PTR_INVALID_LIST_SIZE, elementSize));
+            throw new Error(util_1.format(errors_1.PTR_INVALID_LIST_SIZE, elementSize));
     }
-    const res = (0, pointer_1.initPointer)(c.segment, c.byteOffset, l);
-    (0, pointer_1.setListPointer)(res.offsetWords, elementSize, length, res.pointer, compositeSize);
+    const res = pointer_1.initPointer(c.segment, c.byteOffset, l);
+    pointer_1.setListPointer(res.offsetWords, elementSize, length, res.pointer, compositeSize);
 }
 exports.initList = initList;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

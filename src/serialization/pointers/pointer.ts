@@ -30,6 +30,7 @@ import {
   PTR_WRONG_POINTER_TYPE,
   PTR_WRONG_LIST_TYPE,
   INVARIANT_UNREACHABLE_CODE,
+  PTR_COMPOSITE_LIST_INVALID_INDEX,
 } from "../../errors";
 
 const trace = initTrace("capnp:pointer");
@@ -1002,6 +1003,58 @@ export function copyFromStruct(src: Pointer, dst: Pointer): void {
   const res = initPointer(dstContent.segment, dstContent.byteOffset, dst);
   setStructPointer(res.offsetWords, srcSize, res.pointer);
 }
+
+
+/// Copies a struct into a composite list pointer
+export function copyFromStructToCompositeList(src: Pointer, dst: Pointer): void {
+  const index = dst._capnp.compositeIndex!;
+  const totalNumberOfWords = getListLength(dst);
+
+  // Find out the tag word, which contains info about individual structs,
+  // ignore the composite index when getting the value.
+  const content = getContent(dst, true);
+  // The composite list tag is always one word before the content.
+  content.byteOffset -= 8;
+  const totalNumberOfStructs = getOffsetWords(content);
+  // Back to the beginning of content
+  content.byteOffset += 8;
+
+  if (index >= totalNumberOfStructs)
+    throw new Error(format(PTR_COMPOSITE_LIST_INVALID_INDEX, index, totalNumberOfStructs));
+
+  // Point offset to the right place
+
+  if (index > 0) {
+    const structLengthWords = totalNumberOfWords / totalNumberOfStructs;
+    content.byteOffset += (structLengthWords * 8) * index;
+  }
+
+  // Copy the values, but don't allocate the structs data + pointers section
+  // like copyFromStruct does because it is already allocated when the composite
+  // list was initialized.
+
+  if (dst._capnp.depthLimit <= 0) throw new Error(PTR_DEPTH_LIMIT_EXCEEDED);
+
+  const srcContent = getContent(src);
+  const srcSize = getTargetStructSize(src);
+  const srcDataWordLength = getDataWordLength(srcSize);
+
+  // Copy the data section.
+
+  content.segment.copyWords(content.byteOffset, srcContent.segment, srcContent.byteOffset, srcDataWordLength);
+
+  // Copy the pointer section.
+
+  for (let i = 0; i < srcSize.pointerLength; i++) {
+    const offset = srcSize.dataByteLength + i * 8;
+
+    const srcPtr = new Pointer(srcContent.segment, srcContent.byteOffset + offset, src._capnp.depthLimit - 1);
+    const dstPtr = new Pointer(content.segment, content.byteOffset + offset, dst._capnp.depthLimit - 1);
+
+    copyFrom(srcPtr, dstPtr);
+  }
+}
+
 
 /**
  * Track the allocation of a new Pointer object.

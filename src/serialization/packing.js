@@ -57,18 +57,18 @@ exports.getTagByte = getTagByte;
 function getUnpackedByteLength(packed) {
     const p = new Uint8Array(packed);
     let wordCount = 0;
-    let lastTag = 119 /* PackedTag.NONZERO_NONSPAN */;
+    let lastTag = 119 /* NONZERO_NONSPAN */;
     for (let i = 0; i < p.byteLength;) {
         const tag = p[i];
-        if (lastTag === 0 /* PackedTag.ZERO */) {
+        if (lastTag === 0 /* ZERO */) {
             wordCount += tag;
             i++;
-            lastTag = 119 /* PackedTag.NONZERO_NONSPAN */;
+            lastTag = 119 /* NONZERO_NONSPAN */;
         }
-        else if (lastTag === 255 /* PackedTag.SPAN */) {
+        else if (lastTag === 255 /* SPAN */) {
             wordCount += tag;
             i += tag * 8 + 1;
-            lastTag = 119 /* PackedTag.NONZERO_NONSPAN */;
+            lastTag = 119 /* NONZERO_NONSPAN */;
         }
         else {
             wordCount++;
@@ -125,7 +125,7 @@ function pack(unpacked, byteOffset = 0, byteLength) {
     const src = new Uint8Array(unpacked, byteOffset, byteLength);
     // TODO: Maybe we should do this with buffers? This costs more than 8x the final compressed size in temporary RAM.
     const dst = [];
-    let lastTag = 119 /* PackedTag.NONZERO_NONSPAN */;
+    let lastTag = 119 /* NONZERO_NONSPAN */;
     /** This is where we need to remember to write the SPAN tag (0xff). */
     let spanWordCountOffset = 0;
     /** How many words have been copied during the current range. */
@@ -144,9 +144,9 @@ function pack(unpacked, byteOffset = 0, byteLength) {
         /** If this is true we'll skip the normal word write logic after the switch statement. */
         let skipWriteWord = true;
         switch (lastTag) {
-            case 0 /* PackedTag.ZERO */:
+            case 0 /* ZERO */:
                 // We're writing a range of words with all zeroes in them. See if we need to bail out of the fast path.
-                if (tag !== 0 /* PackedTag.ZERO */ || rangeWordCount >= 0xff) {
+                if (tag !== 0 /* ZERO */ || rangeWordCount >= 0xff) {
                     // There's a bit in there or we got too many zeroes. Damn, we need to bail.
                     dst.push(rangeWordCount);
                     rangeWordCount = 0;
@@ -157,7 +157,7 @@ function pack(unpacked, byteOffset = 0, byteLength) {
                     rangeWordCount++;
                 }
                 break;
-            case 255 /* PackedTag.SPAN */: {
+            case 255 /* SPAN */: {
                 // We're writing a span of nonzero words.
                 const zeroCount = getZeroByteCount(a, b, c, d, e, f, g, h);
                 // See if we need to bail now.
@@ -202,16 +202,16 @@ function pack(unpacked, byteOffset = 0, byteLength) {
         if (h !== 0)
             dst.push(h);
         // Record the span tag offset if needed, making sure to actually leave room for it.
-        if (tag === 255 /* PackedTag.SPAN */) {
+        if (tag === 255 /* SPAN */) {
             spanWordCountOffset = dst.length;
             dst.push(0);
         }
     }
     // We're done. If we were writing a range let's finish it.
-    if (lastTag === 0 /* PackedTag.ZERO */) {
+    if (lastTag === 0 /* ZERO */) {
         dst.push(rangeWordCount);
     }
-    else if (lastTag === 255 /* PackedTag.SPAN */) {
+    else if (lastTag === 255 /* SPAN */) {
         dst[spanWordCountOffset] = rangeWordCount;
     }
     return new Uint8Array(dst).buffer;
@@ -232,22 +232,22 @@ function unpack(packed) {
     const src = new Uint8Array(packed);
     const dst = new Uint8Array(new ArrayBuffer(getUnpackedByteLength(packed)));
     /** The last tag byte that we've seen - it starts at a "neutral" value. */
-    let lastTag = 119 /* PackedTag.NONZERO_NONSPAN */;
+    let lastTag = 119 /* NONZERO_NONSPAN */;
     for (let srcByteOffset = 0, dstByteOffset = 0; srcByteOffset < src.byteLength;) {
         const tag = src[srcByteOffset];
-        if (lastTag === 0 /* PackedTag.ZERO */) {
+        if (lastTag === 0 /* ZERO */) {
             // We have a span of zeroes. New array buffers are guaranteed to be initialized to zero so we just seek ahead.
             dstByteOffset += tag * 8;
             srcByteOffset++;
-            lastTag = 119 /* PackedTag.NONZERO_NONSPAN */;
+            lastTag = 119 /* NONZERO_NONSPAN */;
         }
-        else if (lastTag === 255 /* PackedTag.SPAN */) {
+        else if (lastTag === 255 /* SPAN */) {
             // We have a span of unpacked bytes. Copy them verbatim from the source buffer.
             const spanByteLength = tag * 8;
             dst.set(src.subarray(srcByteOffset + 1, srcByteOffset + 1 + spanByteLength), dstByteOffset);
             dstByteOffset += spanByteLength;
             srcByteOffset += 1 + spanByteLength;
-            lastTag = 119 /* PackedTag.NONZERO_NONSPAN */;
+            lastTag = 119 /* NONZERO_NONSPAN */;
         }
         else {
             // Okay, a normal tag. Let's read past the tag and copy bytes that have a bit set in the tag.

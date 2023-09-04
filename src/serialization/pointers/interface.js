@@ -11,7 +11,7 @@ const pointer_1 = require("./pointer");
 class Interface extends pointer_1.Pointer {
     constructor(segment, byteOffset, depthLimit = constants_1.MAX_DEPTH) {
         super(segment, byteOffset, depthLimit);
-        throw new Error((0, util_1.format)(errors_1.NOT_IMPLEMENTED, "new Interface"));
+        throw new Error(util_1.format(errors_1.NOT_IMPLEMENTED, "new Interface"));
     }
 }
 exports.Interface = Interface;

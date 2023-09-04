@@ -113,3 +113,8 @@ export const TYPE_SET_GENERIC_LIST = "CAPNP-TS042 Attempted to call set() on a g
 
 export const PTR_WRITE_CONST_LIST = "CAPNP-TS043 Attempted to write to a const list.";
 export const PTR_WRITE_CONST_STRUCT = "CAPNP-TS044 Attempted to write to a const struct.";
+
+// Custom error messages for the composite list setting.
+
+export const PTR_COMPOSITE_LIST_INVALID_INDEX =
+  "CAPNP-TS045 Index %d exceeds the size of the list %d.";

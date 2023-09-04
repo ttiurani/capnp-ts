@@ -7,7 +7,7 @@ exports.padToWord = exports.getWordLength = exports.getDataWordLength = exports.
 const tslib_1 = require("tslib");
 const debug_1 = tslib_1.__importDefault(require("debug"));
 const _ = tslib_1.__importStar(require("../util"));
-const trace = (0, debug_1.default)("capnp:object-size");
+const trace = debug_1.default("capnp:object-size");
 trace("load");
 /**
  * A simple object that describes the size of a struct.

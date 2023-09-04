@@ -10,7 +10,7 @@ const errors_1 = require("../../errors");
 const arena_kind_1 = require("./arena-kind");
 const multi_segment_arena_1 = require("./multi-segment-arena");
 const single_segment_arena_1 = require("./single-segment-arena");
-const trace = (0, debug_1.default)("capnp:arena");
+const trace = debug_1.default("capnp:arena");
 trace("load");
 class Arena {
 }
@@ -25,7 +25,7 @@ function allocate(minSize, segments, a) {
         case arena_kind_1.ArenaKind.SINGLE_SEGMENT:
             return single_segment_arena_1.SingleSegmentArena.allocate(minSize, segments, a);
         default:
-            return (0, errors_1.assertNever)(a);
+            return errors_1.assertNever(a);
     }
 }
 exports.allocate = allocate;
@@ -36,7 +36,7 @@ function getBuffer(id, a) {
         case arena_kind_1.ArenaKind.SINGLE_SEGMENT:
             return single_segment_arena_1.SingleSegmentArena.getBuffer(id, a);
         default:
-            return (0, errors_1.assertNever)(a);
+            return errors_1.assertNever(a);
     }
 }
 exports.getBuffer = getBuffer;
@@ -47,7 +47,7 @@ function getNumSegments(a) {
         case arena_kind_1.ArenaKind.SINGLE_SEGMENT:
             return single_segment_arena_1.SingleSegmentArena.getNumSegments();
         default:
-            return (0, errors_1.assertNever)(a);
+            return errors_1.assertNever(a);
     }
 }
 exports.getNumSegments = getNumSegments;
