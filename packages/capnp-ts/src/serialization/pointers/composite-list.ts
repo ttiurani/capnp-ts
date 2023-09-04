@@ -7,7 +7,7 @@ import initTrace from "debug";
 import { ListElementSize } from "../list-element-size";
 import { _ListCtor, List, ListCtor } from "./list";
 import { Struct, StructCtor } from "./struct";
-import { copyFrom } from "./pointer";
+import { copyFromStructToCompositeList } from "./pointer";
 
 const trace = initTrace("capnp:list:composite");
 trace("load");
@@ -25,7 +25,8 @@ export function CompositeList<T extends Struct>(CompositeClass: StructCtor<T>): 
     }
 
     set(index: number, value: T): void {
-      copyFrom(value, this.get(index));
+      const target: T = this.get(index);
+      copyFromStructToCompositeList(value, target);
     }
 
     toString(): string {
